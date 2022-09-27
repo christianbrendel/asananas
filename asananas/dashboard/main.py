@@ -13,9 +13,14 @@ from asananas.asana_linear_bridge import sync_asana_linear
 st.set_page_config(
     page_title="Asananas Dashboard",
     page_icon="🍍",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded",
 )
+
+fp = os.path.dirname(__file__)
+FILE_PATH_LOGO = os.path.join(fp, "..", "assets", "logo.jpg")
+FILE_PATH_ASANA_EXAMPLE_TASK = os.path.join(fp, "..", "assets", "asana_example_task.png")
+FILE_PATH_ASANA_LINEAR_MAPPING = os.path.join(fp, "..", "assets", "asana_linear_mapping.png")
 
 
 # Helper Functions
@@ -49,7 +54,26 @@ def _load_data(asana_workspace_name, asana_project_name, asana_access_token):
 
 st.header("Asananas Dashboard")
 
+st.markdown(
+    """
+    Asananas helps you with your project management in [Asana](http://asana.com/). It assumes that a single Asana project (e.g. called "Company Workstreams") is used for high-level project planning of your company or your team. Different projects/workstreams are reflected in Asana as tasks in the dedicated Asana project. These Asana tasks can be assigned to different people and have a start and a due date.
+  
+   Asananas helps you to visualize the allocation of your team members over time. Additionally, it helps you to sync your Asana tasks with [Linear](http://linear.app/), a project management tool for software development teams. This is particularity useful for projects that are more technical in nature.
+    """
+)
+
 with st.expander("Asana Credentials", expanded=False):
+
+    st.markdown(
+        """
+        To connect this dashboard to your Asana workspace, you need to provide the following credentials:
+        - `asana_workspace_name`: The name of your Asana workspace
+        - `asana_project_name`: The name of the Asana project you want to visualize
+        - `asana_access_token`: The access token of your Asana account. You can get your token [here](https://app.asana.com/0/my-apps).
+        For convenience, you can also provide these credentials as environment variables.
+        """
+    )
+
     asana_workspace_name = _credentials_input(
         "Asana Workspace Name", "ASANA_WORKSPACE_NAME"
     )
@@ -61,6 +85,7 @@ with st.expander("Asana Credentials", expanded=False):
 # Sidbar Logo
 # ###########
 
+st.sidebar.image(FILE_PATH_LOGO, use_column_width=True)
 st.sidebar.markdown(f"Asananas v{asananas.__version__}")
 st.sidebar.markdown("---")
 
@@ -70,11 +95,9 @@ df_asana_tasks = _load_data(
     asana_workspace_name, asana_project_name, asana_access_token
 )
 
-st.sidebar.markdown(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-)
+st.sidebar.markdown("To speed up the dashboard, the data is cached for 1 hour. If you updated your Asana task press the button below to reload the data.")
 
-if st.sidebar.button("Clear Cache"):
+if st.sidebar.button("Clear Cache & Rerun"):
     _load_data.clear()
     st.experimental_rerun()
 
@@ -86,9 +109,8 @@ st.markdown("---")
 
 st.subheader("⌛ Resource Allocation")
 
-st.markdown(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-)
+
+st.markdown("Individual tasks specified in your Asana project require different human resources. By specifying the required resources in the Asana task, you can visualize the resource allocation of your team. The following image shows the resource allocation by week:")
 
 (
     df_allocation_data,
@@ -117,18 +139,40 @@ if len(projects_with_broken_allocation) > 0:
         f"The follwing {len(projects_with_broken_allocation)} projects have an allocation that could not be decoded: {', '.join(projects_with_broken_allocation)}"
     )
 
+# explanation
+with st.expander("How to specify resources of a task in Asana", expanded=False):
+    st.markdown(
+    """
+    With a growing number of tasks the  resource allocation becomes harder and harder to oversee and it gets even more complicated when multiple people work on a single task. To avoid this problem, Asananas provides a simple way to visualize the resource allocation of your Asana project. 
+    To do so, you need to specify the required resources for each task in the task description by adding a custom field called  'Allocation'. The required resources are specified in the following format:
+    - `Name1: 2d`: You can either specify the required resources in days. In this example, the task requires 2 days of Name1's time.
+    - `Name1: 30%`: You can also specify the required resources in percent. In this example, the task requires 30% of the Name1's work time.    
+    - `Name1: 3d, Name2: 70%`: If you want to specify multiple resources, you can separate them by a comma.
+    The image below shows an example task with the required resources specified in the Allocation field.
+    """
+    )
+    _, c, _ =  st.columns([1,2,1])
+    with c:
+        st.image(FILE_PATH_ASANA_EXAMPLE_TASK, caption="Asana Example Task")
+
+
 
 # Linear Bridge
 # #############
+
 st.markdown("---")
 
 st.subheader("🔄 Linear Bridge")
 
-st.markdown(
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-)
+st.markdown("From some tasks in your Asana project it might be useful to track the progress in Linear. Here we map a project in Asana to a team in Linear and a task in Asana to projects in Linear. See the image below for an illustration.")
+_, c, _ = st.columns([1,4,1])
+with c:
+    st.image(FILE_PATH_ASANA_LINEAR_MAPPING, caption="Mapping from Asana to Linear")
+st.markdown("To sync the start and due dates of the Asana task with the Linear project, provide your Linear API key and the Linear team name in the following field and press the button below. All Asana tasks with the tag `Linear Project` will be synced.")
 
 with st.expander("Settings", expanded=False):
+    st.markdown("To connect this dashboard to your Linear account, you need to provide the linear team name and the access token. For convenience, you can also provide these credentials as environment variables.")
+    
     linear_team_name = _credentials_input("Liner Team Name", "LINEAR_TEAM_NAME")
     linear_access_token = _credentials_input(
         "Linear Access Token", "LINEAR_ACCESS_TOKEN", password=True
