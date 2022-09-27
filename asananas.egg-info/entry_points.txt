@@ -1,4 +1,0 @@
-[console_scripts]
-asananas-allocation = asananas.allocation_management:main
-asananas-dashboard = asananas.dashboard.cli:run
-asananas-sync-linear = asananas.asana_linear_bridge:main
