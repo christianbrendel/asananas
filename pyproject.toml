@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=64.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asananas"
+description = "Asananas"
+authors = [
+  {"name" = "Christian Brendel", "email" = "brendel.chris@gmail.com"},
+]
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "asana",
+    "requests",
+    "loguru",
+    "pandas",
+    "streamlit",
+    "plotly"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "ipykernel",
+    "nbformat>=4.2.0",
+    "isort",
+    "pre-commit",
+    "pydocstyle"
+]
+
+[tool.setuptools]
+packages = ["asananas"]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "asananas._version.__version__"}
+
+[project.scripts]
+asananas-sync-linear = "asananas.asana_linear_bridge:main"
+asananas-allocation = "asananas.allocation_management:main"
+asananas-dashboard = "asananas.dashboard.cli:run"

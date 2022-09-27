@@ -1,0 +1,85 @@
+Metadata-Version: 2.1
+Name: asananas
+Version: 0.1.0
+Summary: Asananas
+Author-email: Christian Brendel <brendel.chris@gmail.com>
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+
+<div align="center">
+
+<p align="center">
+  <a href="https://worldcoin.org/"><img src="https://worldcoin-ai-data-public.s3.amazonaws.com/logo/logo-white.png" width=300px></img></a>
+</p>
+
+# Face-Identifier
+
+</div>
+
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![Tests](https://github.com/worldcoin/face-identifier/actions/workflows/tests.yml/badge.svg)
+![Coverage](docs/coverage.svg)
+
+## Installation
+If you only need the bare face-identifier run the following command:
+
+```
+# via ssh
+pip install git+ssh://git@github.com/worldcoin/face-identifier.git
+# via https
+pip install git+https://github.com/worldcoin/face-identifier.git
+```
+
+Additionally you might want to use the RGBNet as a face detector. We recommend using version v1.1.0 which can be installed as follows:
+
+```
+export RGBNET_BACKEND=PYTORCH
+# via ssh
+pip install git+ssh://git@github.com/worldcoin/rgb-net.git@v1.1.0
+# via https
+pip install git+https://github.com/worldcoin/rgb-net.git@v1.1.0
+```
+Note that we specified pytorch as the inference framework of the RGBNet. In case you want to use tensorrt simply do not specify this env variable.
+
+## Setup Dev Environment
+
+To develop the face identifier feel free to use the pre-defined conda environment. To set it up simply run the following two lines of code:
+
+```
+export RGBNET_BACKEND=PYTORCH
+conda env create --file conda/conda.yml
+```
+
+You also find a makefile that helps you to format your code, check the code coverage of the unit tests and check your docstring. Please always check your code before you push using the following commands:
+
+```
+make format-code
+make unittest-coverage
+make check-docstrings
+```
+
+or simply use `make all`.
+
+## Example
+
+Checkout `example/examples.py` for an example about the basic usage of this engine.
+
+
+## Performance
+
+The folder `performance` contains a script to test the performance of the face-identifier and rgb-net against a given dataset. Simply run `python run_performance_analysis.py` for that. Below you can find the current results of our pipeline and how it compares to the [insight face engine](http://insightface.ai/):
+
+![Coverage](docs/office_dataset_v2_tiny.png)
+
+
+## Possible Improvements
+
+The biggest problem at the moment is the long tail of the match distribution towards small similarities. There are ways to improve that. Here is a list of ideas and next steps:
+
+- RGBNet improvement: Some bounding box predictions are quite weak. Improvements here would also improve the overall identification performance.
+- Occlusion detection: Detecting facial masks, hands within face, sunglasses would improve the performance as well.
+- Keypoint alignment: Calculate facial keypoints and align both images (affine transformation) or block if face is too misaligned.
+- Multi-view feature: Take multiple face images per signup, calculate the embeddings of all of them and fuse them (average or median). This should reduce the effect of outliers, e.g. over or underexposed images.
