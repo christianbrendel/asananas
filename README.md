@@ -6,20 +6,25 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
-Asananas helps you with your project management in [Asana](http://asana.com/). It assumes that a single Asana project (e.g. called "Company Workstreams") is used for high-level project planning of your company or your team. Different projects/workstreams are reflected in Asana as tasks in the dedicated Asana project. These Asana tasks can be assigned to different people and have a start and a due date.
+Asananas helps you with your project management in [Asana](http://asana.com/). It assumes that a single Asana project, e.g. called "Company Workstreams", is used for high-level project planning of your company or your team. Different projects/workstreams are reflected in Asana as tasks in the dedicated Asana project. These Asana tasks can be assigned to different people and have a start and a due date.
   
 Asananas helps you to visualize the allocation of your team members over time. Additionally, it helps you to sync your Asana tasks with [Linear](http://linear.app/), a project management tool for software development teams. This is particularity useful for projects that are more technical in nature.
+
+## Disclaimer
+
+This package is a PoC that has been developed within a few hours. Bit and pieces of the code are unclean very hacky. For a more detailed list of the limitations see the section "Limitations & Improvements" below.
 
 ## Quick start
  
 To start quickly simply install the package via pip and launch the built-in dashboard. The dashboard explains how to setup the link with Asana and Linear.
+
 ```
 pip install asananas
 asananas-dashboard
 ```
 
 Two use the two main features of Asananas you do not necessarily need the dashboard but you can simply use the following commands in the terminal
+
 ```
 # get the allocation visualization
 asananas-allocation -path "allocation.html" ...
@@ -29,7 +34,8 @@ asananas-sync-linear -asana_workspace_name "your_asana_workspace" ...
 ```
 
 To got even lower level you can also use the individual agents of the package, e.g.
-```
+
+```python
 from asananas.asana_connector import AsanaConnector
 from asananas.allocation_management import extract_allocation_data, visualize_allocation_by_week
     
@@ -60,6 +66,7 @@ or simply use `make all`.
 
 ## Limitations & Improvements
 
-- no unit tests... 
-- no checks for weird user interaction (no project)
-- The package assumes you know asana workspace, project name as well as the linear team. ...successivly fetching the project names....
+- The package is not very well tested, in paritcular there is not a single unit test.
+- The package does not contain a proper error management, e.g. there are no checks whether the allocation field actually exists in the Asana tasks. I.e. the dashboard is not prepared for wrong user interaction and does not really help solving the issue.
+- The package assumes you know the name of your Asana Workspace or Project Name. Fetching this information and providing some nice GUI to select the desired e.g. project would be a nice freature.
+- The code is hardly documented.
