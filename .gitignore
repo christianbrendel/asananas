@@ -3,6 +3,8 @@
 *.csv
 *.zip
 .vscode
+__pycache__
+*.egg-info
 
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,visualstudiocode,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks,python,visualstudiocode,macos,linux
