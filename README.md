@@ -1,9 +1,5 @@
 <div align="center">
 
-<p align="center">
-  <a href="https://worldcoin.org/"><img src="https://worldcoin-ai-data-public.s3.amazonaws.com/logo/logo-white.png" width=300px></img></a>
-</p>
-
 # Asananas
 
 </div>
