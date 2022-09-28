@@ -18,11 +18,11 @@ classifiers = [
 ]
 keywords = ["asana", "project-management", "dashboard", "linear"]
 dependencies = [
-    "asana",
+    "asana >= 1.0.0",
     "requests",
     "loguru",
     "pandas",
-    "streamlit",
+    "streamlit >= 1.0.0",
     "plotly"
 ]
 dynamic = ["version"]
@@ -35,12 +35,14 @@ dev = [
     "nbformat>=4.2.0",
     "isort",
     "pre-commit",
-    "pydocstyle"
+    "pydocstyle",
+    "build", 
+    "twine"
 ]
 
 [tool.setuptools]
-packages = ["asananas"]
-include-package-data = false
+packages = ["asananas", "asananas.dashboard"]
+include-package-data = true
 
 [tool.setuptools.dynamic]
 version = {attr = "asananas._version.__version__"}

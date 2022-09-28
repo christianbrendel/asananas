@@ -8,8 +8,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
  
 Asananas helps you with your project management in [Asana](http://asana.com/). It assumes that a single Asana project, e.g. called "Company Workstreams", is used for high-level project planning of your company or your team. Different projects/workstreams are reflected in Asana as tasks in the dedicated Asana project. These Asana tasks can be assigned to different people and have a start and a due date.
- Asananas helps you to visualize the allocation of your team members over time. Additionally, it helps you to sync your Asana tasks with [Linear](http://linear.app/), a project management tool for software development teams. This is particularly useful for projects that are more technical in nature.
- 
+Asananas helps you to visualize the allocation of your team members over time. Additionally, it helps you to sync your Asana tasks with [Linear](http://linear.app/), a project management tool for software development teams. This is particularly useful for projects that are more technical in nature.
+
+![Example Resource Allocation](asananas/assets/resource_allocation_example.png)
+
 ## Disclaimer
  
 This package is a PoC that has been developed within a few hours. Bit and pieces of the code are unclean and very hacky. For a more detailed list of the limitations see the section "Limitations & Improvements" below.
