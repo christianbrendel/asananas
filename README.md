@@ -1,7 +1,11 @@
 <div align="center">
  
-![Logo](asananas/assets/logo.png)
+<p align="center">
+  <a href="asananas/assets/logo.png"><img src="asananas/assets/logo.png" width=150px></img></a>
+</p>
+
 # Asananas
+
 ("Ananas" [German] ↔️ "pineapple" [English])
  
 </div>
