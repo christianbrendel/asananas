@@ -1,5 +1,6 @@
 <div align="center">
  
+![Logo](asananas/assets/logo.png)
 # Asananas
 ("Ananas" [German] ↔️ "pineapple" [English])
  
@@ -16,7 +17,7 @@ Asananas helps you to visualize the allocation of your team members over time. A
  
 This package is a PoC that has been developed within a few hours. Bit and pieces of the code are unclean and very hacky. For a more detailed list of the limitations see the section "Limitations & Improvements" below.
  
-Additionally it is worth mentioning that about 75% of all the code (including the markdown text in the dashboard) has been suggested by [GitHub Copilot](https://github.com/features/copilot) and the logo has been created by the a [stable-diffusion](https://replicate.com/blog/run-stable-diffusion-on-m1-mac) model using the prompt *"A cartoon of a smart pineapple connected to the internet on a white background"*. :-)
+Additionally it is worth mentioning that about 75% of all the code (including the markdown text in the dashboard) has been suggested by [GitHub Copilot](https://github.com/features/copilot) and the logo has been created by the a [stable-diffusion](https://replicate.com/blog/run-stable-diffusion-on-m1-mac) model using the prompt *"A cartoon of a pineapple wearing sunglasses while flying through the sky"*. 🙂
 
 ## Quick Start
 To start quickly simply install the package via pip and launch the built-in dashboard. The dashboard explains how to set up the link with Asana and Linear.
