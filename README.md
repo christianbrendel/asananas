@@ -1,7 +1,7 @@
 <div align="center">
  
 # Asananas
-("Ananas" [German]: "pineapple")
+("Ananas" [German] ↔️ "pineapple" [English])
  
 </div>
  
