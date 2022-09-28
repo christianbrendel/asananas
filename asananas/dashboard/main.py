@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 fp = os.path.dirname(__file__)
-FILE_PATH_LOGO = os.path.join(fp, "..", "assets", "logo.jpg")
+FILE_PATH_LOGO = os.path.join(fp, "..", "assets", "logo.png")
 FILE_PATH_ASANA_EXAMPLE_TASK = os.path.join(
     fp, "..", "assets", "asana_example_task.png"
 )
