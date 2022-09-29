@@ -1,5 +1,3 @@
-import argparse
-import os
 import typing as t
 from datetime import datetime
 
@@ -23,24 +21,8 @@ COLORS = [
 ]
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--asana_workspace_name", type=str, default=None)
-    parser.add_argument("--asana_project_name", type=str, default=None)
-    parser.add_argument("--asana_access_token", type=str, default=None)
-    parser.add_argument("--linear_team_name", type=str, default=None)
-    parser.add_argument("--linear_access_token", type=str, default=None)
-    parser.add_argument(
-        "--auto_create_linear_projects", action="store_true", default=True
-    )
-    parser.add_argument("--sync_projects", action="store_true", default=True)
-    parser.add_argument("--cancel_linear_projects", action="store_true", default=True)
-    return parser.parse_args()
-
-
 def sync_asana_linear(
-    asana_workspace_name,
-    asana_project_name,
+    asana_project_id,
     asana_access_token,
     linear_team_name,
     linear_access_token,
@@ -50,12 +32,9 @@ def sync_asana_linear(
 ):
 
     logger.info("Fetching data from Asana")
-    asana_connector = AsanaConnector(
-        workspace_name=asana_workspace_name,
-        project_name=asana_project_name,
-        access_token=asana_access_token,
-    )
-    df_asana_tasks = asana_connector.get_all_tasks()
+    df_asana_tasks = AsanaConnector(
+        access_token=asana_access_token
+    ).get_all_tasks_for_project(asana_project_id)
     df_asana_tasks = df_asana_tasks[df_asana_tasks.asana_linear_project]
 
     logger.info("Fetching data from Linear")
@@ -141,37 +120,3 @@ def sync_asana_linear(
                 logger.info(
                     f"Cancelled Linear project '{row.linear_project_name}' because no asana task exists."
                 )
-
-
-def main():
-
-    args = parse_args()
-
-    for k, v in args.__dict__.items():
-        if k in [
-            "auto_create_linear_projects",
-            "sync_projects",
-            "cancel_linear_projects",
-        ]:
-            continue
-        v = os.getenv(k.upper())
-        setattr(args, k, v)
-        if v is None:
-            raise ValueError(
-                f"Argument {k} is missing. You can provide it via command line or declare a environment variable called {k.upper()}."
-            )
-
-    sync_asana_linear(
-        args.asana_workspace_name,
-        args.asana_project_name,
-        args.asana_access_token,
-        args.linear_team_name,
-        args.linear_access_token,
-        args.auto_create_linear_projects,
-        args.sync_projects,
-        args.cancel_linear_projects,
-    )
-
-
-if __name__ == "__main__":
-    main()

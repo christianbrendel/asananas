@@ -1,19 +1,8 @@
-import argparse
-import os
 import re
 from datetime import datetime, timedelta
 
 import pandas as pd
 import plotly.express as px
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--asana_workspace_name", type=str, default=None)
-    parser.add_argument("--asana_project_name", type=str, default=None)
-    parser.add_argument("--asana_access_token", type=str, default=None)
-    parser.add_argument("--path", type=str, default=os.getcwd())
-    return parser.parse_args()
 
 
 def _get_all_work_days(t1, t2, n_workdays_per_week):
@@ -141,59 +130,3 @@ def visualize_allocation_by_week(df_allocation_data, n_workdays_per_week=5):
     fig.update_yaxes(range=[0, 1.5])
 
     return fig
-
-
-def main():
-
-    import os
-
-    from loguru import logger
-
-    from asananas.allocation_management import (
-        extract_allocation_data,
-        visualize_allocation_by_week,
-    )
-    from asananas.asana_connector import AsanaConnector
-
-    args = parse_args()
-
-    for k, v in args.__dict__.items():
-        if k == "path":
-            continue
-        v = os.getenv(k.upper())
-        setattr(args, k, v)
-        if v is None:
-            raise ValueError(
-                f"Argument {k} is missing. You can provide it via command line or declare a environment variable called {k.upper()}."
-            )
-
-    asana_connector = AsanaConnector(
-        workspace_name=args.asana_workspace_name,
-        project_name=args.asana_project_name,
-        access_token=args.asana_access_token,
-    )
-
-    df_asana_tasks = asana_connector.get_all_tasks()
-    (
-        df_allocation_data,
-        projects_with_no_allocation,
-        projects_with_broken_allocation,
-    ) = extract_allocation_data(df_asana_tasks, n_workdays_per_week=5)
-
-    if len(projects_with_no_allocation) > 0:
-        logger.warning(
-            f"{len(projects_with_no_allocation)} projects have no resource allocated: {', '.join(projects_with_no_allocation)}"
-        )
-    if len(projects_with_broken_allocation) > 0:
-        logger.warning(
-            f"{len(projects_with_broken_allocation)} projects have broken resource allocation: {', '.join(projects_with_broken_allocation)}"
-        )
-
-    fig = visualize_allocation_by_week(df_allocation_data)
-    p = os.path.join(args.path, "allocation.html")
-    fig.write_html(p)
-    logger.info(f"Allocation visualization saved to {p}")
-
-
-if __name__ == "__main__":
-    main()

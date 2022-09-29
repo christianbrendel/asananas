@@ -5,7 +5,9 @@
 </p>
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
- 
+
+---
+
 </div>
  
  
@@ -28,51 +30,30 @@ pip install asananas
 asananas-dashboard
 ```
  
-To use the two main features of Asananas you do not necessarily need the dashboard but you can simply use the following commands in the terminal
- 
-```
-# get the allocation visualization
-asananas-allocation -path "allocation.html" ...
- 
-# sync Linear with Asana
-asananas-sync-linear -asana_workspace_name "your_asana_workspace" ...
-```
- 
-To got even lower level you can also use the individual agents of the package, e.g.
+You can also use the low-level function of the package, e.g.
  
 ```python
 from asananas.asana_connector import AsanaConnector
 from asananas.allocation_management import extract_allocation_data, visualize_allocation_by_week
   
-asana_connector = AsanaConnector(workspace_name="foo", project_name="bar", access_token="my_secret")
-df_asana_tasks = asana_connector.get_all_tasks()
+asana_connector = AsanaConnector(access_token="foo")
+
+workspaces = asana_connector.get_workspaces()
+workspace_id = workspaces[0]["gid]
+
+projects = asana_connector.get_projects_for_workspace(workspace_id)
+project_id = projects[0]["gid]
+
+df_asana_tasks = asana_connector.get_all_tasks_for_project(project_id)
+
 df_allocation_data, _, _ = extract_allocation_data(df_asana_tasks, n_workdays_per_week=5)
 fig = visualize_allocation_by_week(df_allocation_data)
 fig.write_html("my_allocation_plot.html")
 ```
- 
-## Setup Dev Environment
- 
-To develop the Asananas package feel free to use the pre-defined conda environment. To set it up simply run the following two lines of code:
- 
-```
-conda env create --file conda.yml
-```
- 
-You also find a makefile that helps you to format your code, check the code coverage of the unit tests and check your docstring. Please always check your code before you push using the following commands:
- 
-```
-make format-code
-make check-docstrings
-```
- 
-or simply use `make all`.
- 
- 
+  
 ## Limitations & Improvements
  
 - The package is not very well tested, in particular there is not a single unit test.
 - The package does not contain proper error management, e.g. there are no checks whether the allocation field actually exists in the Asana tasks. In general, the dashboard is not prepared for wrong user interaction and does not really help solving the issue.
-- The package assumes you know the name of your Asana Workspace or Project Name. Fetching this information and providing some nice GUI to select the desired e.g. project would be a nice feature.
 - The code is hardly documented.
 

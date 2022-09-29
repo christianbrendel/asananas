@@ -6,9 +6,7 @@ import pandas as pd
 
 
 class AsanaConnector:
-    def __init__(
-        self, workspace_name: str, project_name: str, access_token: str = None
-    ) -> None:
+    def __init__(self, access_token: str = None):
 
         if access_token is None:
             access_token = os.getenv("ASANA_ACCESS_TOKEN")
@@ -17,23 +15,12 @@ class AsanaConnector:
             raise Exception("No Asana access token provided")
 
         self.client = asana.Client.access_token(access_token)
-        self.workspace_id = self._find_workspace_id(workspace_name)
-        self.project_id = self._find_project_id(project_name)
 
-    def _find_workspace_id(self, workspace_name: str) -> str:
-        workspaces = self.client.workspaces.find_all()
-        for workspace in workspaces:
-            if workspace["name"] == workspace_name:
-                return workspace["gid"]
-        raise Exception(f"Workspace {workspace_name} not found")
+    def get_workspaces(self):
+        return list(self.client.workspaces.find_all())
 
-    def _find_project_id(self, project_name):
-        params = {"workspace": self.workspace_id, "archived": False}
-        projects = self.client.projects.find_all(params)
-        for project in projects:
-            if project["name"] == project_name:
-                return project["gid"]
-        raise Exception(f"Project {project_name} not found")
+    def get_projects_for_workspace(self, workspace_id):
+        return list(self.client.projects.find_by_workspace(workspace_id))
 
     def _find_section_by_project_id(self, task_info, project_id):
         for membership in task_info["memberships"]:
@@ -48,9 +35,9 @@ class AsanaConnector:
                 return custom_field["text_value"]
         return None
 
-    def get_all_tasks(self) -> t.List[t.Dict]:
+    def get_all_tasks_for_project(self, project_id) -> t.List[t.Dict]:
         task_infos = []
-        for task in self.client.tasks.find_by_project(self.project_id):
+        for task in self.client.tasks.find_by_project(project_id):
             task_info = self.client.tasks.get_task(task["gid"])
 
             if task_info["resource_subtype"] != "default_task":
@@ -72,7 +59,7 @@ class AsanaConnector:
                     "asana_url": task_info["permalink_url"],
                     "asana_linear_project": "Linear Project" in tags,
                     "asana_section": self._find_section_by_project_id(
-                        task_info, self.project_id
+                        task_info, project_id
                     ),
                     "asana_allocation": self._find_allocation(task_info),
                 }
