@@ -1,7 +1,7 @@
 <div align="center">
  
 <p align="center">
-  <a href="asananas/assets/logo.png"><img src="asananas/assets/logo2.png" width=400px></img></a>
+  <img src="https://raw.githubusercontent.com/christianbrendel/asananas/main/asananas/assets/logo3.png" width=400px></img>
 </p>
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
@@ -14,7 +14,7 @@
 Asananas helps you with your project management in [Asana](http://asana.com/). It assumes that a single Asana project, e.g. called "Company Workstreams", is used for high-level project planning of your company or your team. Different projects/workstreams are reflected in Asana as tasks in the dedicated Asana project. These Asana tasks can be assigned to different people and have a start and a due date.
 Asananas helps you to visualize the allocation of your team members over time. Additionally, it helps you to sync your Asana tasks with [Linear](http://linear.app/), a project management tool for software development teams. This is particularly useful for projects that are more technical in nature.
 
-![Example Resource Allocation](asananas/assets/resource_allocation_example.png)
+![Example Resource Allocation](https://github.com/christianbrendel/asananas/blob/main/asananas/assets/resource_allocation_example.png?raw=true)
 
 ## Disclaimer
  
@@ -39,10 +39,10 @@ from asananas.allocation_management import extract_allocation_data, visualize_al
 asana_connector = AsanaConnector(access_token="foo")
 
 workspaces = asana_connector.get_workspaces()
-workspace_id = workspaces[0]["gid]
+workspace_id = workspaces[0]["gid"]
 
 projects = asana_connector.get_projects_for_workspace(workspace_id)
-project_id = projects[0]["gid]
+project_id = projects[0]["gid"]
 
 df_asana_tasks = asana_connector.get_all_tasks_for_project(project_id)
 

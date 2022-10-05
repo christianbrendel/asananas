@@ -51,6 +51,4 @@ version = {attr = "asananas._version.__version__"}
 Homepage = "https://github.com/christianbrendel/asananas"
 
 [project.scripts]
-asananas-sync-linear = "asananas.asana_linear_bridge:main"
-asananas-allocation = "asananas.allocation_management:main"
 asananas-dashboard = "asananas.dashboard.cli:run"

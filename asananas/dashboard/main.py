@@ -179,9 +179,11 @@ with st.expander("Setup", expanded=False):
 # Sidebar Logo
 # ###########r
 
+
 st.sidebar.image(FILE_PATH_LOGO, use_column_width=True)
 st.sidebar.markdown(
-    f"<div style='text-align: center;'>v{VERSION}</div>", unsafe_allow_html=True
+    f"<div style='text-align: center;'>v{VERSION} (<a href='https://www.github.com/christianbrendel/asananas'>GitHub</a>) </div>",
+    unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
 

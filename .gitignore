@@ -4,6 +4,7 @@
 *.zip
 .vscode
 __pycache__
+__pycache__/*
 *.egg-info
 
 # Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks,python,visualstudiocode,macos,linux
