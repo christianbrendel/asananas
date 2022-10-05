@@ -182,7 +182,7 @@ with st.expander("Setup", expanded=False):
 
 st.sidebar.image(FILE_PATH_LOGO, use_column_width=True)
 st.sidebar.markdown(
-    f"<div style='text-align: center;'>v{VERSION} (<a href='https://www.github.com/christianbrendel/asananas'>GitHub</a>) </div>",
+    f"<div style='text-align: center;'>v{VERSION}<br><a href='https://www.github.com/christianbrendel/asananas'>GitHub</a> <a href='https://pypi.org/project/asananas'>PyPI</a> </div>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
