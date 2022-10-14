@@ -1,4 +1,4 @@
-name: asananas-streamlit
+name: asananas
 
 channels:
   - conda-forge
@@ -8,4 +8,4 @@ dependencies:
   - ipykernel
   - pip
   - pip:
-    - --editable .
+    - --editable .[dev]
