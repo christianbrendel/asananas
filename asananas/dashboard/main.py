@@ -1,6 +1,7 @@
 import os
 
 import streamlit as st
+import pandas as pd
 
 from asananas import __version__ as VERSION
 from asananas.allocation_management import (
@@ -20,6 +21,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+ASANANAS_DEMO_MODE = os.getenv("ASANANAS_DEMO_MODE", False)
+
 
 # Image Paths
 # ##########
@@ -32,6 +35,7 @@ FILE_PATH_ASANA_EXAMPLE_TASK = os.path.join(
 FILE_PATH_ASANA_LINEAR_MAPPING = os.path.join(
     fp, "..", "assets", "asana_linear_mapping.png"
 )
+FILE_PATH_DUMMY_DATA = os.path.join(fp, "..", "assets", "dummy_data.pkl")
 
 # Helper Functions
 # ################
@@ -85,6 +89,8 @@ def _get_projects(asana_access_token, workspace_id):
 
 @st.experimental_memo(ttl=3600)
 def _load_data(asana_access_token, asana_project_id):
+    if ASANANAS_DEMO_MODE:
+        return pd.read_pickle(FILE_PATH_DUMMY_DATA)
     return AsanaConnector(access_token=asana_access_token).get_all_tasks_for_project(
         asana_project_id
     )
@@ -109,45 +115,62 @@ with st.expander("Settings", expanded=False):
         "**ASANA**: To connect this dashboard to your Asana workspace, you need to provide your Asana access token and select a workspace and project. You can get your token [here](https://app.asana.com/0/my-apps)."
     )
 
-    asana_access_token = _credentials_text_input(
-        "Asana Access Token", "ASANA_ACCESS_TOKEN", password=True
-    )
-
-    if asana_access_token is not None:
-
-        workspaces = _get_workspaces(asana_access_token)
-        asana_workspace_name = _credentials_select_input(
-            "Asana Workspace Name", "ASANA_WORKSPACE_NAME", list(workspaces.keys())
+    if ASANANAS_DEMO_MODE:
+        st.success(
+            "Asana Access Token found in environment variable ASANA_ACCESS_TOKEN = *******"
         )
-        asana_workspace_id = workspaces[asana_workspace_name]
-
-        if asana_workspace_id is not None:
-            projects = _get_projects(asana_access_token, asana_workspace_id)
-            asana_project_name = _credentials_select_input(
-                "Asana Project Name", "ASANA_PROJECT_NAME", list(projects.keys())
-            )
-            asana_project_id = projects[asana_project_name]
+        asana_workspace_name = st.selectbox(
+            "Select Asana Workspace Name", ["My dummy company"]
+        )
+        asana_project_name = st.selectbox(
+            "Select Asana Project Name", ["My dummy project"]
+        )
+        asana_access_token = "demo_token"
+        asana_project_id = "dummy_project_id"
 
     else:
-        st.error("Provide a valid asana access token to continue.")
-        asana_project_id = None
 
-    st.markdown("---")
+        asana_access_token = _credentials_text_input(
+            "Asana Access Token", "ASANA_ACCESS_TOKEN", password=True
+        )
 
-    st.markdown(
-        "**LINEAR**: If you additionally want to use the Linear bridge you need to provide a Linear Access token as well as a team name."
-    )
+        if asana_access_token is not None:
 
-    linear_access_token = _credentials_text_input(
-        "Linear Access Token", "LINEAR_ACCESS_TOKEN", password=True
-    )
-    linear_team_name = _credentials_text_input("Liner Team Name", "LINEAR_TEAM_NAME")
+            workspaces = _get_workspaces(asana_access_token)
+            asana_workspace_name = _credentials_select_input(
+                "Asana Workspace Name", "ASANA_WORKSPACE_NAME", list(workspaces.keys())
+            )
+            asana_workspace_id = workspaces[asana_workspace_name]
 
-    st.markdown("---")
+            if asana_workspace_id is not None:
+                projects = _get_projects(asana_access_token, asana_workspace_id)
+                asana_project_name = _credentials_select_input(
+                    "Asana Project Name", "ASANA_PROJECT_NAME", list(projects.keys())
+                )
+                asana_project_id = projects[asana_project_name]
 
-    st.markdown(
-        "For convenience, you can provide all this information also via environment variables called `ASANA_ACCESS_TOKEN`, `ASANA_WORKSPACE_NAME`, `ASANA_PROJECT_NAME`, `LINEAR_ACCESS_TOKEN`, `LINEAR_TEAM_NAME`. This is useful in case this dashboard should be deployed for one specific team."
-    )
+        else:
+            st.error("Provide a valid asana access token to continue.")
+            asana_project_id = None
+
+        st.markdown("---")
+
+        st.markdown(
+            "**LINEAR**: If you additionally want to use the Linear bridge you need to provide a Linear Access token as well as a team name."
+        )
+
+        linear_access_token = _credentials_text_input(
+            "Linear Access Token", "LINEAR_ACCESS_TOKEN", password=True
+        )
+        linear_team_name = _credentials_text_input(
+            "Liner Team Name", "LINEAR_TEAM_NAME"
+        )
+
+        st.markdown("---")
+
+        st.markdown(
+            "For convenience, you can provide all this information also via environment variables called `ASANA_ACCESS_TOKEN`, `ASANA_WORKSPACE_NAME`, `ASANA_PROJECT_NAME`, `LINEAR_ACCESS_TOKEN`, `LINEAR_TEAM_NAME`. This is useful in case this dashboard should be deployed for one specific team."
+        )
 
 
 with st.expander("Setup", expanded=False):
@@ -186,6 +209,9 @@ st.sidebar.markdown(
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
+
+if ASANANAS_DEMO_MODE:
+    st.sidebar.info("DEMO MODE")
 
 
 # Load Data
@@ -227,13 +253,27 @@ else:
 
     # filter by name
     names = list(df_allocation_data.name.unique())
-    selected_names = st.multiselect("Filter by names", names, default=names)
+    default_values = names
+    if ASANANAS_DEMO_MODE:
+        default_values = [
+            "Goofy",
+            "DonaldDuck",
+            "MickeyMouse",
+            "Pluto",
+            "MortimerMouse",
+        ]
+    selected_names = st.multiselect("Filter by names", names, default=default_values)
+
     df_allocation_data_plot = df_allocation_data[
         df_allocation_data["name"].isin(selected_names)
     ]
 
     # visualize
-    fig = visualize_allocation_by_week(df_allocation_data_plot)
+
+    t = None
+    if ASANANAS_DEMO_MODE:
+        t = "2022-09-30"
+    fig = visualize_allocation_by_week(df_allocation_data_plot, current_date=t)
     st.plotly_chart(fig)
 
     # warnings and errors
@@ -261,6 +301,10 @@ with c2:
     sync_projects = st.checkbox("Sync project timelines", value=True)
 with c3:
     cancel_linear_projects = st.checkbox("Auto cancel Linear projects", value=True)
+
+if ASANANAS_DEMO_MODE:
+    st.warning("Linear Bridge is disabled in demo mode.")
+    st.stop()
 
 if (
     asana_project_id is not None

@@ -29,7 +29,7 @@ def extract_allocation_data(df_asana_tasks, n_workdays_per_week=5):
             continue
 
         # decode allocation
-        pattern = r"([A-Z]+): ([0-9]+)(%|d)"
+        pattern = r"([A-Za-z]+): ([0-9]+)(%|d)"
         allocations = re.findall(pattern, row.asana_allocation)
         if len(allocations) == 0:
             projects_with_broken_allocation.append(row.asana_task_name)
@@ -69,7 +69,9 @@ def extract_allocation_data(df_asana_tasks, n_workdays_per_week=5):
     )
 
 
-def visualize_allocation_by_week(df_allocation_data, n_workdays_per_week=5):
+def visualize_allocation_by_week(
+    df_allocation_data, n_workdays_per_week=5, current_date=None
+):
 
     # create the week field
     df_allocation_data["week"] = df_allocation_data["date"].apply(
@@ -107,7 +109,11 @@ def visualize_allocation_by_week(df_allocation_data, n_workdays_per_week=5):
     fig.add_hline(y=1)
 
     # grey out the past
-    t = datetime.now()
+    if current_date is None:
+        t = datetime.now()
+    else:
+        t = datetime.strptime(current_date, "%Y-%m-%d")
+
     x1 = f"{t.year}-CW{t.isocalendar().week}"
     fig.add_vrect(
         x0=df_tmp.week.min(), x1=x1, line_width=0, fillcolor="black", opacity=0.4
