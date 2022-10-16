@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/christianbrendel/asananas/main/asananas/assets/logo2.png" width=400px></img>
 </p>
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://christianbrendel-asananas-asananasdashboardmain-0vvuq2.streamlitapp.com)
 
 ---
 
