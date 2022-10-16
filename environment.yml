@@ -1,4 +1,4 @@
-name: asananas-streamlit
+name: asananas-demo
 
 channels:
   - conda-forge
@@ -6,6 +6,6 @@ channels:
 dependencies:
   - python==3.9
   - ipykernel
-  - pip
-  - pip:
-    - .
+  - streamlit
+  - pandas
+  - plotly

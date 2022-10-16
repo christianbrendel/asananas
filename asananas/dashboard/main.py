@@ -1,15 +1,35 @@
 import os
-
 import streamlit as st
 import pandas as pd
 
-from asananas import __version__ as VERSION
-from asananas.allocation_management import (
-    extract_allocation_data,
-    visualize_allocation_by_week,
-)
-from asananas.asana_connector import AsanaConnector
-from asananas.asana_linear_bridge import sync_asana_linear
+
+try:
+    from asananas import __version__ as VERSION
+    from asananas.allocation_management import (
+        extract_allocation_data,
+        visualize_allocation_by_week,
+    )
+    from asananas.asana_connector import AsanaConnector
+    from asananas.asana_linear_bridge import sync_asana_linear
+
+    ASANANAS_DEMO_MODE = False
+
+except ImportError:
+
+    # HACK: this is a quick and very ugly hack to make the demo work on streamlit
+    # sharing with minimal requirements. I am not proud of this...
+    import sys
+
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
+    from allocation_management import (
+        extract_allocation_data,
+        visualize_allocation_by_week,
+    )
+    from _version import __version__ as VERSION
+
+    ASANANAS_DEMO_MODE = True
+
 
 # Page Config
 # ###########
@@ -20,8 +40,6 @@ st.set_page_config(
     layout="centered",
     initial_sidebar_state="expanded",
 )
-
-ASANANAS_DEMO_MODE = os.getenv("ASANANAS_DEMO_MODE", False)
 
 
 # Image Paths
