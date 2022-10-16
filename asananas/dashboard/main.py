@@ -1,9 +1,8 @@
 import os
 import streamlit as st
-import pandas as pd
-
 
 try:
+    import pandas as pd
     from asananas import __version__ as VERSION
     from asananas.allocation_management import (
         extract_allocation_data,
@@ -13,22 +12,18 @@ try:
     from asananas.asana_linear_bridge import sync_asana_linear
 
     ASANANAS_DEMO_MODE = False
+    LAYOUT = "centered"
 
 except ImportError:
 
-    # HACK: this is a quick and very ugly hack to make the demo work on streamlit
-    # sharing with minimal requirements. I am not proud of this...
-    import sys
+    import streamlit.components.v1 as components
 
-    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+    p = os.path.join(os.path.dirname(__file__), "..", "assets", "demo_fig.html")
+    PLOTLY_DEMO_GRAPH = open(p, "r", encoding="utf-8").read()
 
-    from allocation_management import (
-        extract_allocation_data,
-        visualize_allocation_by_week,
-    )
-    from _version import __version__ as VERSION
-
+    VERSION = "DEMO"
     ASANANAS_DEMO_MODE = True
+    LAYOUT = "wide"
 
 
 # Page Config
@@ -37,7 +32,7 @@ except ImportError:
 st.set_page_config(
     page_title="Asananas Dashboard",
     page_icon="🍍",
-    layout="centered",
+    layout=LAYOUT,
     initial_sidebar_state="expanded",
 )
 
@@ -107,8 +102,6 @@ def _get_projects(asana_access_token, workspace_id):
 
 @st.experimental_memo(ttl=3600)
 def _load_data(asana_access_token, asana_project_id):
-    if ASANANAS_DEMO_MODE:
-        return pd.read_pickle(FILE_PATH_DUMMY_DATA)
     return AsanaConnector(access_token=asana_access_token).get_all_tasks_for_project(
         asana_project_id
     )
@@ -228,23 +221,32 @@ st.sidebar.markdown(
 )
 st.sidebar.markdown("---")
 
-if ASANANAS_DEMO_MODE:
-    st.sidebar.info("DEMO MODE")
-
 
 # Load Data
 # #########
-df_asana_tasks = _load_data(asana_access_token, asana_project_id)
+if ASANANAS_DEMO_MODE:
+    df_allocation_data = ["dummy"]
+    projects_with_no_allocation = ["Dummy Project 123"]
+    projects_with_broken_allocation = []
 
-st.sidebar.markdown(
-    "To speed up the dashboard, the data is cached for one hour. If you updated your Asana tasks press the button below to reload the data."
-)
+else:
+    df_asana_tasks = _load_data(asana_access_token, asana_project_id)
 
-if st.sidebar.button("Clear Cache & Rerun"):
-    _get_workspaces.clear()
-    _get_projects.clear()
-    _load_data.clear()
-    st.experimental_rerun()
+    st.sidebar.markdown(
+        "To speed up the dashboard, the data is cached for one hour. If you updated your Asana tasks press the button below to reload the data."
+    )
+
+    if st.sidebar.button("Clear Cache & Rerun"):
+        _get_workspaces.clear()
+        _get_projects.clear()
+        _load_data.clear()
+        st.experimental_rerun()
+
+    (
+        df_allocation_data,
+        projects_with_no_allocation,
+        projects_with_broken_allocation,
+    ) = extract_allocation_data(df_asana_tasks, n_workdays_per_week=5)
 
 
 # Resource Allocation
@@ -254,12 +256,6 @@ st.markdown("---")
 
 st.subheader("⌛ Resource Allocation")
 
-(
-    df_allocation_data,
-    projects_with_no_allocation,
-    projects_with_broken_allocation,
-) = extract_allocation_data(df_asana_tasks, n_workdays_per_week=5)
-
 if len(df_allocation_data) == 0:
     st.warning(
         f"Could not find any resource allocation data for the Asana project {asana_project_name}."
@@ -268,31 +264,20 @@ else:
     st.markdown(
         "Individual tasks specified in your Asana project require different human resources. By specifying the required resources in the Asana task, you can visualize the resource allocation of your team. The following image shows the resource allocation by week:"
     )
-
-    # filter by name
-    names = list(df_allocation_data.name.unique())
-    default_values = names
     if ASANANAS_DEMO_MODE:
-        default_values = [
-            "Goofy",
-            "DonaldDuck",
-            "MickeyMouse",
-            "Pluto",
-            "MortimerMouse",
+        components.html(PLOTLY_DEMO_GRAPH, height=1000, width=1000)
+
+    else:
+        # filter by name
+        names = list(df_allocation_data.name.unique())
+        selected_names = st.multiselect("Filter by names", names, default=names)
+        df_allocation_data_plot = df_allocation_data[
+            df_allocation_data["name"].isin(selected_names)
         ]
-    selected_names = st.multiselect("Filter by names", names, default=default_values)
 
-    df_allocation_data_plot = df_allocation_data[
-        df_allocation_data["name"].isin(selected_names)
-    ]
-
-    # visualize
-
-    t = None
-    if ASANANAS_DEMO_MODE:
-        t = "2022-09-30"
-    fig = visualize_allocation_by_week(df_allocation_data_plot, current_date=t)
-    st.plotly_chart(fig)
+        # visualize
+        fig = visualize_allocation_by_week(df_allocation_data_plot)
+        st.plotly_chart(fig)
 
     # warnings and errors
     if len(projects_with_no_allocation) > 0:
@@ -322,26 +307,26 @@ with c3:
 
 if ASANANAS_DEMO_MODE:
     st.warning("Linear Bridge is disabled in demo mode.")
-    st.stop()
 
-if (
-    asana_project_id is not None
-    and linear_access_token is not None
-    and linear_team_name is not None
-):
-    if st.button("Run Asana-Linear Bridge"):
-        with st.spinner("Sync in progress..."):
-
-            sync_asana_linear(
-                asana_project_id,
-                asana_access_token,
-                linear_team_name,
-                linear_access_token,
-                auto_create_linear_projects,
-                sync_projects,
-                cancel_linear_projects,
-            )
 else:
-    st.warning(
-        "Make sure you provided the linear access token, linear team name and linear access token in the settings above."
-    )
+    if (
+        asana_project_id is not None
+        and linear_access_token is not None
+        and linear_team_name is not None
+    ):
+        if st.button("Run Asana-Linear Bridge"):
+            with st.spinner("Sync in progress..."):
+
+                sync_asana_linear(
+                    asana_project_id,
+                    asana_access_token,
+                    linear_team_name,
+                    linear_access_token,
+                    auto_create_linear_projects,
+                    sync_projects,
+                    cancel_linear_projects,
+                )
+    else:
+        st.warning(
+            "Make sure you provided the linear access token, linear team name and linear access token in the settings above."
+        )

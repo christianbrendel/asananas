@@ -11,7 +11,7 @@ repos:
   rev: v3.4.0  # Use the ref you want to point at
   hooks:
       - id: check-added-large-files
-        args: ['--maxkb=2000']
+        args: ['--maxkb=4000']
       - id: check-merge-conflict
       - id: check-symlinks
       - id: detect-aws-credentials
