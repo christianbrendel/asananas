@@ -73,9 +73,23 @@ def visualize_allocation_by_week(
     df_allocation_data, n_workdays_per_week=5, current_date=None
 ):
 
+    if current_date is None:
+        t = datetime.now()
+    else:
+        t = datetime.strptime(current_date, "%Y-%m-%d")
+
+    n_weeks_into_past = 4
+    n_weeks_into_future = 12
+
+    t0 = t - timedelta(days=7 * n_weeks_into_past)
+    x0 = f"{t0.year}-CW{t0.isocalendar().week:02d}"
+
+    t1 = t + timedelta(days=7 * n_weeks_into_future)
+    x1 = f"{t1.year}-CW{t1.isocalendar().week:02d}"
+
     # create the week field
     df_allocation_data["week"] = df_allocation_data["date"].apply(
-        lambda x: f"{x.isocalendar().year}-CW{x.isocalendar().week}"
+        lambda x: f"{x.isocalendar().year}-CW{x.isocalendar().week:02d}"
     )
 
     # group by name, project and week
@@ -94,6 +108,9 @@ def visualize_allocation_by_week(
         df_tmp.allocation * df_tmp.n_days_in_this_week / n_workdays_per_week
     )
 
+    # time of interest only
+    df_tmp = df_tmp[(df_tmp.week > x0) & (df_tmp.week <= x1)]
+
     # basic bar plot
     fig = px.bar(
         df_tmp,
@@ -105,18 +122,23 @@ def visualize_allocation_by_week(
         hover_data=["week_of"],
     )
 
+    # sort x-axis alpabetically
+    # fig.update_xaxes(categoryorder="array", categoryarray=df_tmp.week.unique())
+
     # maximum allocation marker
     fig.add_hline(y=1)
 
     # grey out the past
-    if current_date is None:
-        t = datetime.now()
-    else:
-        t = datetime.strptime(current_date, "%Y-%m-%d")
-
-    x1 = f"{t.year}-CW{t.isocalendar().week}"
     fig.add_vrect(
-        x0=df_tmp.week.min(), x1=x1, line_width=0, fillcolor="black", opacity=0.4
+        x0=-1, x1=n_weeks_into_past - 1, line_width=0, fillcolor="black", opacity=0.4
+    )
+
+    # update axis
+    fig.update_xaxes(
+        showline=True, linecolor="black", linewidth=2, mirror=True, tickangle=90
+    )
+    fig.update_yaxes(
+        showline=True, linecolor="black", linewidth=2, mirror=True, range=[0, 1.5]
     )
 
     # update the size of the plot
@@ -125,14 +147,5 @@ def visualize_allocation_by_week(
         width=1000,
         height=df_tmp.name.nunique() * 200,
     )
-
-    # update the x-range
-    t = datetime.now() - timedelta(days=7 * 4)
-    x0 = f"{t.year}-CW{t.isocalendar().week}"
-    idx_1 = (df_tmp.week.drop_duplicates().sort_values() == x0).argmax()
-
-    idx_2 = (df_tmp.week.drop_duplicates().sort_values() == df_tmp.week.max()).argmax()
-    fig.update_xaxes(range=[idx_1, idx_2])
-    fig.update_yaxes(range=[0, 1.5])
 
     return fig

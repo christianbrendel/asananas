@@ -1,8 +1,10 @@
 import os
+
 import streamlit as st
 
 try:
     import pandas as pd
+
     from asananas import __version__ as VERSION
     from asananas.allocation_management import (
         extract_allocation_data,
@@ -277,7 +279,7 @@ else:
 
         # visualize
         fig = visualize_allocation_by_week(df_allocation_data_plot)
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, theme=None)
 
     # warnings and errors
     if len(projects_with_no_allocation) > 0:
